@@ -11,43 +11,32 @@ function requestCallback (returnedData) {
   eventsRepository = {
       events: returnedData,
       getEventById: function (id) {
-        return $.grep(this.events, function(e){ return e.id == id; });
+        var resultArray = $.grep(this.events, function(event){ return event.id == id; })
+        return resultArray[0];
       },
       getFinishedEvents: function () {
-          var resultArray = [];
-          var currDate = new Date();
-          for (var i = 0; i < this.events.length; i++) {
-              var date = new Date(this.events[i].dateEnd)
-              if (date - currDate > 0) {
-                  resultArray.push(this.events[i]);
-              }
-          }
+        var currDate = new Date();
+          var resultArray = this.events.filter(function(event) {
+            var dateEnd = new Date(event.dateEnd);
+            return (dateEnd < currDate);
+          });
           return resultArray;
       },
       getCurrentEvents: function () {
-          var resultArray = [];
           var currDate = new Date();
-          for (var i = 0; i < this.events.length; i++) {
-              var date = new Date(this.events[i].dateEnd);
-              if (date >= currDate) {
-                  date = new Date(this.events[i].dateStart);
-                  if(currDate >= date){
-                    resultArray.push(this.events[i]);
-                  }
-              }
-          }
+          var resultArray = this.events.filter(function(event) {
+            var dateEnd = new Date(event.dateEnd);
+            var dateStart = new Date(event.dateStart);
+            return (dateEnd >= currDate) && (currDate >= dateStart);
+          });
           return resultArray;
       },
       getFutureEvents: function () {
-          var resultArray = [];
           var currDate = new Date();
-          for (var i = 0; i < this.events.length; i++) {
-              var date = new Date(this.events[i].dateStart);
-              if(date > currDate){
-                  resultArray.push(this.events[i]);
-              }
-
-          }
+          var resultArray = this.events.filter(function(event) {
+            var dateStart = new Date(event.dateStart);
+            return (dateStart > currDate);
+          });
           return resultArray;
       },
       getEventInfo: function (id) {
@@ -55,7 +44,6 @@ function requestCallback (returnedData) {
           return event.name + ", " + event.location + ": " + event.dateStart +
           " - " + event.dateEnd;;
       }
-
   }
 
   console.log(eventsRepository.getEventById(1).name);
